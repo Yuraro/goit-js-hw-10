@@ -38,11 +38,13 @@ fetchCountries(searchQuery)
     }
     })
     .catch(error => {
-        return 'Not founded.';
-        clearCountryInfo();
-        clearCountryList();
-    });
-}
+        if (error && error.response && error.response.status === 404) {
+        showNotification('Country not found.');
+        }
+    clearCountryInfo();
+    clearCountryList();
+        });
+};
 
 function renderCountryList(countries) {
     countryList.innerHTML = `
@@ -55,7 +57,7 @@ function renderCountryList(countries) {
     `).join('')}
     </ul>
 `;
-}
+};
 
 function renderCountryInfo(country) {
     countryInfo.innerHTML = `
@@ -73,4 +75,4 @@ function renderCountryInfo(country) {
     </div>
 </div>
 `;
-}
+};
