@@ -10,7 +10,7 @@ const countryInfo = document.querySelector('.country-info');
 
 searchBox.addEventListener('input', debounce(onSearchInput, DEBOUNCE_DELAY));
 
-async function onSearchInput(event) {
+function onSearchInput(event) {
     const searchQuery = event.target.value.trim();
 
 if (!searchQuery) {
@@ -19,9 +19,8 @@ if (!searchQuery) {
     return;
 }
 
-try {
-    const countries = await fetchCountries(searchQuery);
-
+fetchCountries(searchQuery)
+    .then(countries => {
     if (countries.length === 1) {
         renderCountryInfo(countries[0]);
         clearCountryList();
@@ -37,12 +36,14 @@ try {
         clearCountryInfo();
         clearCountryList();
     }
-} catch (error) {
-    showNotification('Error fetching data.');
-    clearCountryInfo();
-    clearCountryList();
+    })
+    .catch(error => {
+        showNotification('Not founded.');
+        clearCountryInfo();
+        clearCountryList();
+    });
 }
-}
+
 
 function renderCountryList(countries) {
     countryList.innerHTML = '';
