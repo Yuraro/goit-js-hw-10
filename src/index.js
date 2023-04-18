@@ -38,41 +38,39 @@ fetchCountries(searchQuery)
     }
     })
     .catch(error => {
-        showNotification('Not founded.');
+        return 'Not founded.';
         clearCountryInfo();
         clearCountryList();
     });
 }
 
-
 function renderCountryList(countries) {
-    countryList.innerHTML = '';
-    countries.forEach(country => {
-    const listItem = document.createElement('li');
-    listItem.textContent = country.name.official;
-    listItem.addEventListener('click', () => {
-        renderCountryInfo(country);
-        clearCountryList();
-    });
-    countryList.appendChild(listItem);
-});
+    countryList.innerHTML = `
+    <ul>
+    ${countries.map(country => `
+        <li>
+            <img src="${country.flags.svg}" alt="${country.name.official} flag">
+            <span>${country.name.official}</span>
+        </li>
+    `).join('')}
+    </ul>
+`;
 }
 
 function renderCountryInfo(country) {
-const html = `
+    countryInfo.innerHTML = `
     <h2>${country.name.official}</h2>
-    <img src="${country.flags.svg}" alt="Flag of ${country.name.official}" width="300">
     <p><strong>Capital:</strong> ${country.capital}</p>
     <p><strong>Population:</strong> ${country.population}</p>
-    <p><strong>Languages:</strong> ${country.languages.map(lang => lang.name).join(', ')}</p>
+    <img src="${country.flags.svg}" alt="${country.name.official} flag">
+    <h3>Languages:</h3>
+    <div>
+        <ul>
+        ${Object.values(country.languages).map(language => `
+            <li>${language}</li>
+        `).join('')}
+        </ul>
+    </div>
+</div>
 `;
-    countryInfo.innerHTML = html;
-}
-
-function clearCountryList() {
-    countryList.innerHTML = '';
-}
-
-function clearCountryInfo() {
-    countryInfo.innerHTML = '';
 }
