@@ -1,9 +1,7 @@
-const BASE_URL = 'https://restcountries.com/v3.1/name/';
-const fields = 'fields=name,capital,population,flag,languages';
-
-function fetchCountries(name) {
-    return fetch('${BASE_URL}${name}?${fields}')
-.then(responce => responce.json())
+async function fetchCountries(name) {
+    const response = await fetch(`https://restcountries.com/v3.1/name/${name}?fields=name.official,capital,population,flags.svg,languages`);
+    const data = await response.json();
+    return data;
 }
 
 export { fetchCountries };

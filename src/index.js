@@ -3,64 +3,75 @@ import { fetchCountries } from './fetchCountries.js';
 import debounce from 'lodash.debounce';
 
 const DEBOUNCE_DELAY = 300;
-let name = "";
 
-const searchBox = document.getElementById('search-box');
+const searchBox = document.querySelector('#search-box');
 const countryList = document.querySelector('.country-list');
 const countryInfo = document.querySelector('.country-info');
 
-searchBox.addEventListener('input', handleInput, debounce(onInputChange, DEBOUNCE_DELAY));
+searchBox.addEventListener('input', debounce(onSearchInput, DEBOUNCE_DELAY));
 
-function onInputChange(e) {
-    e.preventDefault();
-    name = e.target.value.trim();
-}
+async function onSearchInput(event) {
+    const searchQuery = event.target.value.trim();
 
-async function handleInput() {
-const query = searchBox.value.trim();
-
-    if (query.length === 0) {
-    clearResults();
+if (!searchQuery) {
+    clearCountryInfo();
+    clearCountryList();
     return;
 }
 
-    const countries = await fetchCountries(query);
+try {
+    const countries = await fetchCountries(searchQuery);
 
-if (countries.length === 0) {
-    countryList.innerHTML = '<li>No countries found</li>';
-    countryInfo.innerHTML = '';
-    return;
+    if (countries.length === 1) {
+        renderCountryInfo(countries[0]);
+        clearCountryList();
+    } else if (countries.length > 1 && countries.length <= 10) {
+        renderCountryList(countries);
+        clearCountryInfo();
+    } else if (countries.length > 10) {
+        showNotification('Too many matches found. Please enter a more specific query.');
+        clearCountryInfo();
+        clearCountryList();
+    } else {
+        showNotification('Country not found.');
+        clearCountryInfo();
+        clearCountryList();
+    }
+} catch (error) {
+    showNotification('Error fetching data.');
+    clearCountryInfo();
+    clearCountryList();
+}
 }
 
-    const countryItems = countries.map((country) => {
-    const item = document.createElement('li');
-    item.textContent = country.name;
-    item.addEventListener('click', () => displayCountryInfo(country));
-    return item;
-});
-
-countryList.innerHTML = '';
-countryItems.forEach((item) => countryList.appendChild(item));
-}
-
-function clearResults() {
+function renderCountryList(countries) {
     countryList.innerHTML = '';
+    countries.forEach(country => {
+    const listItem = document.createElement('li');
+    listItem.textContent = country.name.official;
+    listItem.addEventListener('click', () => {
+        renderCountryInfo(country);
+        clearCountryList();
+    });
+    countryList.appendChild(listItem);
+});
+}
+
+function renderCountryInfo(country) {
+const html = `
+    <h2>${country.name.official}</h2>
+    <img src="${country.flags.svg}" alt="Flag of ${country.name.official}" width="300">
+    <p><strong>Capital:</strong> ${country.capital}</p>
+    <p><strong>Population:</strong> ${country.population}</p>
+    <p><strong>Languages:</strong> ${country.languages.map(lang => lang.name).join(', ')}</p>
+`;
+    countryInfo.innerHTML = html;
+}
+
+function clearCountryList() {
+    countryList.innerHTML = '';
+}
+
+function clearCountryInfo() {
     countryInfo.innerHTML = '';
 }
-
-function displayCountryInfo(country) {
-    const { name, capital, population, languages, flag } = country;
-
-const info = `
-    <h2>${name}</h2>
-    <img src="${flag}" alt="${name} flag" width="200">
-    <p><strong>Capital:</strong> ${capital}</p>
-    <p><strong>Population:</strong> ${population}</p>
-    <p><strong>Languages:</strong> ${languages.map((lang) => lang.name).join(', ')}</p>
-`;
-
-countryInfo.innerHTML = info;
-}
-
-
-
