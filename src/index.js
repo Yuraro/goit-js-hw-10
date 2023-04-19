@@ -10,6 +10,14 @@ const countryInfo = document.querySelector('.country-info');
 
 searchBox.addEventListener('input', debounce(onSearchInput, DEBOUNCE_DELAY));
 
+function clearCountryInfo() {
+    countryInfo.innerHTML = '';
+}
+
+function clearCountryList() {
+    countryList.innerHTML = '';
+}
+
 function onSearchInput(event) {
     const searchQuery = event.target.value.trim();
 
