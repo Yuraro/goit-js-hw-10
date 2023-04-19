@@ -68,7 +68,6 @@ function renderCountryList(countries) {
     countryList.insertAdjacentHTML('beforeend', list);
 }
 
-
 function renderCountryInfo(country) {
     return (countryInfo.innerHTML = `
     <h2>${country.name.official}</h2>
