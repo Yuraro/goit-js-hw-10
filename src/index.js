@@ -1,5 +1,5 @@
 import './css/styles.css';
-import { fetchCountries } from './fetchCountries.js';
+import { fetchCountries } from './fetch-countries.js';
 import debounce from 'lodash.debounce';
 
 const DEBOUNCE_DELAY = 300;
@@ -47,20 +47,22 @@ fetchCountries(searchQuery)
 };
 
 function renderCountryList(countries) {
-    countryList.innerHTML = `
-    <ul>
-    ${countries.map(country => `
-        <li>
-            <img src="${country.flags.svg}" alt="${country.name.official} flag">
-            <span>${country.name.official}</span>
-        </li>
-    `).join('')}
-    </ul>
-`;
-};
+    const list = countries
+        .map(
+            c =>
+                `<li class="country--item">
+                    <img src="${c.flags.svg}" alt="Country flag"
+                        width="40", height="30">
+                    <span class="country-list--name">${c.name.official}</span>
+                </li>`
+        )
+        .join('');
+    countryList.insertAdjacentHTML('beforeend', list);
+}
+
 
 function renderCountryInfo(country) {
-    countryInfo.innerHTML = `
+    return (countryInfo.innerHTML = `
     <h2>${country.name.official}</h2>
     <p><strong>Capital:</strong> ${country.capital}</p>
     <p><strong>Population:</strong> ${country.population}</p>
@@ -68,11 +70,12 @@ function renderCountryInfo(country) {
     <h3>Languages:</h3>
     <div>
         <ul>
-        ${Object.values(country.languages).map(language => `
+        ${Object.values(country.languages)
+            .map(language => `
             <li>${language}</li>
         `).join('')}
         </ul>
     </div>
 </div>
-`;
+`);
 };
