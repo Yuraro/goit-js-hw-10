@@ -1,6 +1,7 @@
 import './css/styles.css';
 import { fetchCountries } from './fetch-countries.js';
 import debounce from 'lodash.debounce';
+import Notiflix from 'notiflix';
 
 const DEBOUNCE_DELAY = 300;
 
@@ -27,30 +28,31 @@ if (!searchQuery) {
     return;
 }
 
-fetchCountries(searchQuery)
-    .then(countries => {
-    if (countries.length === 1) {
-        renderCountryInfo(countries[0]);
-        clearCountryList();
-    } else if (countries.length > 1 && countries.length <= 10) {
-        renderCountryList(countries);
-        clearCountryInfo();
-    } else if (countries.length > 10) {
-        showNotification('Too many matches found. Please enter a more specific query.');
-        clearCountryInfo();
-        clearCountryList();
-    } else {
-        showNotification('Country not found.');
-        clearCountryInfo();
-        clearCountryList();
-    }
-    })
-    .catch(error => {
-        if (error && error.response && error.response.status === 404) {
-        showNotification('Country not found.');
-        }
-    clearCountryInfo();
-    clearCountryList();
+    fetchCountries(searchQuery)
+        .then(countries => {
+            if (countries.length === 1) {
+                renderCountryInfo(countries[0]);
+                clearCountryList();
+            } else if (countries.length > 1 && countries.length <= 10) {
+                renderCountryList(countries);
+                clearCountryInfo();
+            } else if (countries.length > 10) {
+                Notiflix.Notify.warning('Too many matches found. Please enter a more specific name.');
+                clearCountryInfo();
+                clearCountryList();
+            } else {
+                Notiflix.Notify.failure('Oops, there is no country with that name');
+                clearCountryInfo();
+                clearCountryList();
+            }
+        })
+        .catch(error => {
+            if (error.response.status === '404') {
+                Notiflix.Notify.failure('Oops, there is no country with that name');
+            }
+            console.log(error);
+            clearCountryInfo();
+            clearCountryList();
         });
 };
 
@@ -83,6 +85,5 @@ function renderCountryInfo(country) {
         `).join('')}
         </ul>
     </div>
-</div>
 `);
 };
